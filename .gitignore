@@ -1,0 +1,40 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Text/notes files
+*.txt
+design-style.txt
+INSTRUCTIONS.txt
+technical details.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Node
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Logs
+*.log
+logs/
+
+# Go build artifacts
+backend/server.exe
+backend/server
+
+# Uploads (user-generated content)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Claude
+.claude/

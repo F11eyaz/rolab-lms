@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Lesson content styling */
+.lesson-content h1,
+.lesson-content h2,
+.lesson-content h3 {
+  color: #212529;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+.lesson-content p {
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.lesson-content ul,
+.lesson-content ol {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+
+.lesson-content li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.lesson-content strong {
+  color: #212529;
+}
+
+.lesson-content code {
+  background: #f3f3f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
