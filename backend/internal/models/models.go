@@ -71,35 +71,21 @@ type Category struct {
 // Course
 type Course struct {
 	Base
-	Title         string    `json:"title"`
-	Description   string    `gorm:"type:text" json:"description"`
-	ImageURL      string    `json:"image_url"`
-	Price         float64   `json:"price"`
-	Language      string    `gorm:"default:ru" json:"language"` // ru | kz
-	CategoryID    uint      `json:"category_id"`
-	Category      Category  `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
-	IsCombo       bool      `gorm:"default:false" json:"is_combo"`
-	LessonsCount  int       `json:"lessons_count"`
-	ProgramsCount int       `json:"programs_count"`
-	AverageRating float64   `json:"average_rating"`
-	ReviewsCount  int       `json:"reviews_count"`
-	Duration      string    `gorm:"default:'1 мес'" json:"duration"`
-	Teachers      []Teacher `gorm:"many2many:course_teachers;" json:"teachers,omitempty"`
-	Programs      []Program `gorm:"foreignKey:CourseID" json:"programs,omitempty"`
-}
-
-// Program (module inside a course)
-type Program struct {
-	Base
-	Title        string    `json:"title"`
-	Description  string    `gorm:"type:text" json:"description"`
-	ImageURL     string    `json:"image_url"`
-	Price        float64   `json:"price"`
-	CourseID     string    `gorm:"type:varchar(36)" json:"course_id"`
-	LessonsCount int       `json:"lessons_count"`
-	OrderIndex   int       `gorm:"default:0" json:"order_index"`
-	Teachers     []Teacher `gorm:"many2many:program_teachers;" json:"teachers,omitempty"`
-	Lessons      []Lesson  `gorm:"foreignKey:ProgramID;orderBy:order_index" json:"lessons,omitempty"`
+	Title          string    `json:"title"`
+	Description    string    `gorm:"type:text" json:"description"`
+	ProgramContent string    `gorm:"type:text" json:"program_content"`
+	Glossary       string    `gorm:"type:text" json:"glossary"`
+	ImageURL       string    `json:"image_url"`
+	Price          float64   `json:"price"`
+	Language       string    `gorm:"default:ru" json:"language"` // ru | kz
+	CategoryID     uint      `json:"category_id"`
+	Category       Category  `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
+	IsCombo        bool      `gorm:"default:false" json:"is_combo"`
+	LessonsCount   int       `json:"lessons_count"`
+	AverageRating  float64   `json:"average_rating"`
+	ReviewsCount   int       `json:"reviews_count"`
+	Duration string   `gorm:"default:'1 мес'" json:"duration"`
+	Lessons  []Lesson `gorm:"foreignKey:CourseID;orderBy:order_index" json:"lessons,omitempty"`
 }
 
 // Lesson
@@ -107,19 +93,18 @@ type Lesson struct {
 	Base
 	Title      string `json:"title"`
 	Content    string `gorm:"type:text" json:"content"`
-	ProgramID  string `gorm:"type:varchar(36)" json:"program_id"`
+	CourseID   string `gorm:"type:varchar(36)" json:"course_id"`
 	OrderIndex int    `gorm:"default:0" json:"order_index"`
 }
 
 // Review
 type Review struct {
 	Base
-	ProgramID   string   `gorm:"type:varchar(36)" json:"program_id"`
-	Program     Program  `gorm:"foreignKey:ProgramID" json:"program,omitempty"`
-	AuthorName  string   `json:"author_name"`
-	AuthorEmail string   `json:"author_email"`
-	Rating      int      `gorm:"check:rating >= 1 AND rating <= 5" json:"rating"`
-	Comment     string   `gorm:"type:text" json:"comment"`
-	IsApproved  bool     `gorm:"default:true" json:"is_approved"`
+	CourseID    string    `gorm:"type:varchar(36)" json:"course_id"`
+	AuthorName  string    `json:"author_name"`
+	AuthorEmail string    `json:"author_email"`
+	Rating      int       `gorm:"check:rating >= 1 AND rating <= 5" json:"rating"`
+	Comment     string    `gorm:"type:text" json:"comment"`
+	IsApproved  bool      `gorm:"default:true" json:"is_approved"`
 	CreatedAt   time.Time `json:"created_at"`
 }

@@ -1,5 +1,5 @@
 import { SimpleGrid, Paper, Text, ThemeIcon, Group, Title, Badge } from '@mantine/core';
-import { IconBook, IconStack2, IconFileText, IconUsers, IconMessage } from '@tabler/icons-react';
+import { IconBook, IconFileText, IconUsers, IconMessage } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '../../api/client';
 
@@ -7,10 +7,6 @@ export default function Dashboard() {
   const { data: courses = [] } = useQuery({
     queryKey: ['admin', 'courses'],
     queryFn: () => adminApi.listCourses().then((r) => r.data.data),
-  });
-  const { data: programs = [] } = useQuery({
-    queryKey: ['admin', 'programs'],
-    queryFn: () => adminApi.listPrograms().then((r) => r.data.data),
   });
   const { data: lessons = [] } = useQuery({
     queryKey: ['admin', 'lessons'],
@@ -28,7 +24,6 @@ export default function Dashboard() {
 
   const stats = [
     { label: 'Курсы', value: (courses as unknown[]).length, icon: <IconBook size={24} stroke={1.5} />, color: 'violet' },
-    { label: 'Программы', value: (programs as unknown[]).length, icon: <IconStack2 size={24} stroke={1.5} />, color: 'blue' },
     { label: 'Уроки', value: (lessons as unknown[]).length, icon: <IconFileText size={24} stroke={1.5} />, color: 'green' },
     { label: 'Учителя', value: (teachers as unknown[]).length, icon: <IconUsers size={24} stroke={1.5} />, color: 'orange' },
     { label: 'Отзывы', value: (reviews as unknown[]).length, icon: <IconMessage size={24} stroke={1.5} />, color: 'pink', badge: pending },

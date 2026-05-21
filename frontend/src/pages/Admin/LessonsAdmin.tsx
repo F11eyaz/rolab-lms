@@ -10,10 +10,14 @@ import { RichTextEditor, Link } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Table as TiptapTable } from '@tiptap/extension-table';
+import { TableRow as TiptapTableRow } from '@tiptap/extension-table-row';
+import { TableCell as TiptapTableCell } from '@tiptap/extension-table-cell';
+import { TableHeader as TiptapTableHeader } from '@tiptap/extension-table-header';
 import { adminApi } from '../../api/client';
-import type { Lesson, Program } from '../../types';
+import type { Lesson, Course } from '../../types';
 
-const emptyForm = { title: '', content: '', program_id: '', order_index: 0 };
+const emptyForm = { title: '', content: '', course_id: '', order_index: 0 };
 
 export default function LessonsAdmin() {
   const qc = useQueryClient();
@@ -26,6 +30,10 @@ export default function LessonsAdmin() {
       StarterKit,
       Link,
       Placeholder.configure({ placeholder: 'Введите содержание урока...' }),
+      TiptapTable.configure({ resizable: false }),
+      TiptapTableRow,
+      TiptapTableHeader,
+      TiptapTableCell,
     ],
     content: form.content,
     onUpdate: ({ editor }) => setForm((f) => ({ ...f, content: editor.getHTML() })),
@@ -35,9 +43,9 @@ export default function LessonsAdmin() {
     queryKey: ['admin', 'lessons'],
     queryFn: () => adminApi.listLessons().then((r) => r.data.data as Lesson[]),
   });
-  const { data: programs = [] } = useQuery({
-    queryKey: ['admin', 'programs'],
-    queryFn: () => adminApi.listPrograms().then((r) => r.data.data as Program[]),
+  const { data: courses = [] } = useQuery({
+    queryKey: ['admin', 'courses'],
+    queryFn: () => adminApi.listCourses().then((r) => r.data.data as Course[]),
   });
 
   const save = useMutation({
@@ -63,7 +71,7 @@ export default function LessonsAdmin() {
   };
   const openEdit = (l: Lesson) => {
     setEditing(l);
-    setForm({ title: l.title, content: l.content, program_id: l.program_id, order_index: l.order_index });
+    setForm({ title: l.title, content: l.content, course_id: l.course_id, order_index: l.order_index });
     editor?.commands.setContent(l.content);
     setModal(true);
   };
@@ -79,7 +87,7 @@ export default function LessonsAdmin() {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Урок</Table.Th>
-            <Table.Th>Программа</Table.Th>
+            <Table.Th>Курс</Table.Th>
             <Table.Th>Порядок</Table.Th>
             <Table.Th>Действия</Table.Th>
           </Table.Tr>
@@ -89,7 +97,9 @@ export default function LessonsAdmin() {
             <Table.Tr key={l.id}>
               <Table.Td><Text size="sm" fw={500}>{l.title}</Text></Table.Td>
               <Table.Td>
-                <Text size="sm" c="dimmed">{(programs as Program[]).find((p) => p.id === l.program_id)?.title || l.program_id}</Text>
+                <Text size="sm" c="dimmed">
+                  {courses.find((c) => c.id === l.course_id)?.title || l.course_id}
+                </Text>
               </Table.Td>
               <Table.Td>{l.order_index}</Table.Td>
               <Table.Td>
@@ -107,10 +117,10 @@ export default function LessonsAdmin() {
         <Stack>
           <TextInput label="Заголовок" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
           <Select
-            label="Программа"
-            data={(programs as Program[]).map((p) => ({ value: p.id, label: p.title }))}
-            value={form.program_id}
-            onChange={(v) => setForm({ ...form, program_id: v || '' })}
+            label="Курс"
+            data={courses.map((c) => ({ value: c.id, label: c.title }))}
+            value={form.course_id}
+            onChange={(v) => setForm({ ...form, course_id: v || '' })}
           />
           <NumberInput label="Порядок" value={form.order_index} onChange={(v) => setForm({ ...form, order_index: Number(v) })} min={0} />
           <Box>

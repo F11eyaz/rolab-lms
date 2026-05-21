@@ -1,3 +1,61 @@
+/* ── Table styles for lesson-content and rich editor ── */
+.lesson-content table,
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+.lesson-content table td,
+.lesson-content table th,
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid #d1d5db;
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+.lesson-content table th,
+.ProseMirror table th {
+  background: #f3f4f6;
+  font-weight: 700;
+  color: #111827;
+}
+
+.lesson-content table tr:nth-child(even),
+.ProseMirror table tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.lesson-content table tr:hover,
+.ProseMirror table tr:hover {
+  background: #eff6ff;
+}
+
+/* selected cell highlight in editor */
+.ProseMirror .selectedCell {
+  background: #dbeafe;
+}
+
+/* ── lesson-content general prose styles ── */
+.lesson-content h1 { font-size: 1.6rem; font-weight: 800; margin: 1.2em 0 0.5em; }
+.lesson-content h2 { font-size: 1.3rem; font-weight: 700; margin: 1.1em 0 0.4em; }
+.lesson-content h3 { font-size: 1.1rem; font-weight: 700; margin: 1em 0 0.3em; }
+.lesson-content p  { margin: 0.5em 0; }
+.lesson-content ul, .lesson-content ol { padding-left: 1.5em; margin: 0.5em 0; }
+.lesson-content li { margin: 0.25em 0; }
+.lesson-content strong { font-weight: 700; }
+.lesson-content blockquote {
+  border-left: 3px solid #7c3aed;
+  padding-left: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin: 0.8em 0;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

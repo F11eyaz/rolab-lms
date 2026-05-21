@@ -1,17 +1,16 @@
 import {
   Box, Container, Text, Title, Button, Group, SimpleGrid,
-  Avatar, Skeleton, Stack
+  Skeleton, Stack
 } from '@mantine/core';
 import {
-  IconArrowRight, IconStarFilled, IconBook2,
-  IconUsers, IconCheck, IconSparkles
+  IconArrowRight, IconStarFilled, IconSparkles
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../../components/Layout/Navbar';
 import Footer from '../../components/Layout/Footer';
-import { companyApi, teachersApi, coursesApi } from '../../api/client';
-import type { Company, Teacher, Course } from '../../types';
+import { coursesApi } from '../../api/client';
+import type { Course } from '../../types';
 
 // Brand colors from the logo
 const PURPLE = '#9C5FE5';
@@ -20,14 +19,6 @@ const TEAL = '#5BC4D4';
 const VIOLET = '#7B66E8';
 
 export default function LandingPage() {
-  const { data: company } = useQuery({
-    queryKey: ['company'],
-    queryFn: () => companyApi.get().then((r) => r.data.data as Company),
-  });
-  const { data: teachers = [] } = useQuery({
-    queryKey: ['teachers'],
-    queryFn: () => teachersApi.list().then((r) => r.data.data as Teacher[]),
-  });
   const { data: coursesResp } = useQuery({
     queryKey: ['courses', 'featured'],
     queryFn: () => coursesApi.list({ limit: 6, sort: 'rating' }).then((r) => r.data),
@@ -148,6 +139,8 @@ export default function LandingPage() {
                   Смотреть курсы
                 </Button>
                 <Button
+                  component={Link}
+                  to="/"
                   size="lg"
                   radius={10}
                   variant="outline"
@@ -160,34 +153,10 @@ export default function LandingPage() {
                     background: '#fff',
                   }}
                 >
-                  О платформе
+                  О компании
                 </Button>
               </Group>
 
-              {/* Трасты */}
-              <Group gap="xl">
-                {[
-                  { v: company?.students_count?.toLocaleString() || '15 000+', l: 'студентов' },
-                  { v: String(company?.courses_count || 50) + '+', l: 'курсов' },
-                  { v: String(company?.teachers_count || 30) + '+', l: 'учителей' },
-                ].map((s) => (
-                  <Box key={s.l}>
-                    <Text
-                      fw={900}
-                      style={{
-                        fontSize: 28,
-                        lineHeight: 1,
-                        background: `linear-gradient(135deg, ${VIOLET}, ${TEAL})`,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                      }}
-                    >
-                      {s.v}
-                    </Text>
-                    <Text size="xs" c="dimmed" mt={3}>{s.l}</Text>
-                  </Box>
-                ))}
-              </Group>
             </Stack>
 
             {/* RIGHT — визуальный блок */}
@@ -299,77 +268,6 @@ export default function LandingPage() {
       </Box>
 
       {/* ══════════════════════════════════════════════════
-          FEATURES  — горизонтальные блоки
-      ══════════════════════════════════════════════════ */}
-      <Box style={{ background: '#fff', borderTop: '1px solid #f3f4f6', paddingTop: 80, paddingBottom: 80 }}>
-        <Container size="xl">
-          <Box ta="center" mb={56}>
-            <Text
-              size="xs" fw={700} mb={8}
-              style={{ textTransform: 'uppercase', letterSpacing: '0.12em', color: PURPLE }}
-            >
-              Наши программы
-            </Text>
-            <Title style={{ fontSize: 40, fontWeight: 900, color: '#0a0a0a', letterSpacing: '-1px' }}>
-              Три направления — один результат
-            </Title>
-          </Box>
-
-          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-            {[
-              {
-                grad: `linear-gradient(135deg, ${PURPLE}18, ${VIOLET}08)`,
-                border: `${PURPLE}25`,
-                icon: <IconBook2 size={24} color={PURPLE} stroke={1.5} />,
-                iconBg: `${PURPLE}18`,
-                title: 'Научный проект',
-                text: 'Проектирование, реализация и защита научных проектов. Тема за 1 занятие вместо 3–5 дней, оформление за 4–5 часов вместо 12.',
-              },
-              {
-                grad: `linear-gradient(135deg, ${TEAL}18, ${VIOLET}08)`,
-                border: `${TEAL}25`,
-                icon: <IconUsers size={24} color={TEAL} stroke={1.5} />,
-                iconBg: `${TEAL}18`,
-                title: 'Спортивная робототехника',
-                text: 'Методика преподавания и подготовка команд к соревнованиям FLL, WRO, RoboCup. 100% практика — без лишней теории.',
-              },
-              {
-                grad: `linear-gradient(135deg, ${ORANGE}18, ${PURPLE}08)`,
-                border: `${ORANGE}25`,
-                icon: <IconCheck size={24} color={ORANGE} stroke={1.5} />,
-                iconBg: `${ORANGE}18`,
-                title: 'ИИ для педагога',
-                text: 'Промпты, контент и аналитика. Урок за 15 минут вместо 2 часов, тест за 3 минуты вместо 30. Готовые инструменты с первого занятия.',
-              },
-            ].map((f) => (
-              <Box
-                key={f.title}
-                style={{
-                  background: f.grad,
-                  border: `1px solid ${f.border}`,
-                  borderRadius: 16,
-                  padding: 32,
-                }}
-              >
-                <Box
-                  style={{
-                    width: 48, height: 48, borderRadius: 12,
-                    background: f.iconBg,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: 20,
-                  }}
-                >
-                  {f.icon}
-                </Box>
-                <Text fw={700} size="lg" mb={10} style={{ color: '#0a0a0a' }}>{f.title}</Text>
-                <Text size="sm" c="dimmed" style={{ lineHeight: 1.75 }}>{f.text}</Text>
-              </Box>
-            ))}
-          </SimpleGrid>
-        </Container>
-      </Box>
-
-      {/* ══════════════════════════════════════════════════
           COURSES
       ══════════════════════════════════════════════════ */}
       <Box style={{ background: '#fafafa', borderTop: '1px solid #f0f0f0', paddingTop: 80, paddingBottom: 80 }}>
@@ -381,7 +279,7 @@ export default function LandingPage() {
                 Каталог
               </Text>
               <Title style={{ fontSize: 38, fontWeight: 900, color: '#0a0a0a', letterSpacing: '-1px' }}>
-                Популярные курсы
+                Наши курсы
               </Title>
             </Box>
             <Button
@@ -399,54 +297,6 @@ export default function LandingPage() {
               ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} height={280} radius={14} />)
               : courses.map((course, i) => <CourseCard key={course.id} course={course} index={i} />)
             }
-          </SimpleGrid>
-        </Container>
-      </Box>
-
-      {/* ══════════════════════════════════════════════════
-          TEACHERS
-      ══════════════════════════════════════════════════ */}
-      <Box style={{ background: '#fff', borderTop: '1px solid #f0f0f0', paddingTop: 80, paddingBottom: 80 }}>
-        <Container size="xl">
-          <Box ta="center" mb={56}>
-            <Text size="xs" fw={700} mb={8}
-              style={{ textTransform: 'uppercase', letterSpacing: '0.12em', color: PURPLE }}>
-              Команда
-            </Text>
-            <Title style={{ fontSize: 38, fontWeight: 900, color: '#0a0a0a', letterSpacing: '-1px' }}>
-              Наши преподаватели
-            </Title>
-          </Box>
-          <SimpleGrid cols={{ base: 2, sm: 4 }} spacing={40}>
-            {teachers.slice(0, 4).map((t, i) => {
-              const colors = [PURPLE, TEAL, ORANGE, VIOLET];
-              return (
-                <Stack key={t.id} align="center" gap="sm">
-                  <Box style={{ position: 'relative' }}>
-                    <Box
-                      style={{
-                        position: 'absolute', inset: -3,
-                        borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${colors[i % 4]}, ${colors[(i + 1) % 4]})`,
-                        zIndex: 0,
-                      }}
-                    />
-                    <Avatar
-                      src={t.photo_url || undefined}
-                      size={80}
-                      radius="50%"
-                      color="violet"
-                      style={{ position: 'relative', zIndex: 1, border: '3px solid #fff' }}
-                    >
-                      {t.name.charAt(0)}
-                    </Avatar>
-                  </Box>
-                  <Text fw={700} size="md" ta="center" style={{ color: '#0a0a0a' }}>{t.name}</Text>
-                  <Text size="xs" fw={500} ta="center" style={{ color: colors[i % 4] }}>{t.specialty}</Text>
-                  <Text size="xs" c="dimmed" ta="center">{t.experience} лет опыта</Text>
-                </Stack>
-              );
-            })}
           </SimpleGrid>
         </Container>
       </Box>
@@ -518,8 +368,6 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
     `linear-gradient(135deg, ${PURPLE}, ${TEAL})`,
     `linear-gradient(135deg, ${ORANGE}, ${VIOLET})`,
   ];
-  const teacher = course.teachers?.[0];
-
   return (
     <Box
       component={Link}
@@ -558,7 +406,6 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
         )}
       </Box>
       <Box p="md">
-        {teacher && <Text size="xs" c="dimmed" mb={8}>{teacher.name}</Text>}
         <Group justify="space-between" align="center">
           <Group gap={4}>
             <IconStarFilled size={12} color="#f59e0b" />

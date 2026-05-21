@@ -32,7 +32,7 @@ func NewCourseHandler(db *gorm.DB) *CourseHandler {
 // @Success 200 {array} models.Course
 // @Router /courses [get]
 func (h *CourseHandler) List(c *gin.Context) {
-	query := h.db.Model(&models.Course{}).Preload("Category").Preload("Teachers")
+	query := h.db.Model(&models.Course{}).Preload("Category")
 
 	if search := c.Query("search"); search != "" {
 		query = query.Where("title ILIKE ?", "%"+search+"%")
@@ -96,11 +96,9 @@ func (h *CourseHandler) Get(c *gin.Context) {
 	var course models.Course
 	err := h.db.
 		Preload("Category").
-		Preload("Teachers").
-		Preload("Programs", func(db *gorm.DB) *gorm.DB {
+		Preload("Lessons", func(db *gorm.DB) *gorm.DB {
 			return db.Order("order_index asc")
 		}).
-		Preload("Programs.Teachers").
 		First(&course, "id = ?", c.Param("id")).Error
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -110,15 +108,16 @@ func (h *CourseHandler) Get(c *gin.Context) {
 }
 
 type CourseInput struct {
-	Title       string   `json:"title" binding:"required"`
-	Description string   `json:"description"`
-	ImageURL    string   `json:"image_url"`
-	Price       float64  `json:"price"`
-	Language    string   `json:"language"`
-	CategoryID  uint     `json:"category_id"`
-	IsCombo     bool     `json:"is_combo"`
-	Duration    string   `json:"duration"`
-	TeacherIDs  []string `json:"teacher_ids"`
+	Title          string  `json:"title" binding:"required"`
+	Description    string  `json:"description"`
+	ProgramContent string  `json:"program_content"`
+	Glossary       string  `json:"glossary"`
+	ImageURL       string  `json:"image_url"`
+	Price          float64 `json:"price"`
+	Language       string  `json:"language"`
+	CategoryID     uint    `json:"category_id"`
+	IsCombo        bool    `json:"is_combo"`
+	Duration       string  `json:"duration"`
 }
 
 // CreateCourse godoc
@@ -138,14 +137,16 @@ func (h *CourseHandler) Create(c *gin.Context) {
 	}
 
 	course := models.Course{
-		Title:       input.Title,
-		Description: input.Description,
-		ImageURL:    input.ImageURL,
-		Price:       input.Price,
-		Language:    input.Language,
-		CategoryID:  input.CategoryID,
-		IsCombo:     input.IsCombo,
-		Duration:    input.Duration,
+		Title:          input.Title,
+		Description:    input.Description,
+		ProgramContent: input.ProgramContent,
+		Glossary:       input.Glossary,
+		ImageURL:       input.ImageURL,
+		Price:          input.Price,
+		Language:       input.Language,
+		CategoryID:     input.CategoryID,
+		IsCombo:        input.IsCombo,
+		Duration:       input.Duration,
 	}
 	if course.Language == "" {
 		course.Language = "ru"
@@ -159,13 +160,7 @@ func (h *CourseHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if len(input.TeacherIDs) > 0 {
-		var teachers []models.Teacher
-		h.db.Where("id IN ?", input.TeacherIDs).Find(&teachers)
-		h.db.Model(&course).Association("Teachers").Replace(teachers)
-	}
-
-	h.db.Preload("Category").Preload("Teachers").First(&course, "id = ?", course.ID)
+	h.db.Preload("Category").First(&course, "id = ?", course.ID)
 	c.JSON(http.StatusCreated, gin.H{"data": course})
 }
 
@@ -193,23 +188,19 @@ func (h *CourseHandler) Update(c *gin.Context) {
 	}
 
 	h.db.Model(&course).Updates(map[string]interface{}{
-		"title":       input.Title,
-		"description": input.Description,
-		"image_url":   input.ImageURL,
-		"price":       input.Price,
-		"language":    input.Language,
-		"category_id": input.CategoryID,
-		"is_combo":    input.IsCombo,
-		"duration":    input.Duration,
+		"title":           input.Title,
+		"description":     input.Description,
+		"program_content": input.ProgramContent,
+		"glossary":        input.Glossary,
+		"image_url":       input.ImageURL,
+		"price":           input.Price,
+		"language":        input.Language,
+		"category_id":     input.CategoryID,
+		"is_combo":        input.IsCombo,
+		"duration":        input.Duration,
 	})
 
-	if len(input.TeacherIDs) > 0 {
-		var teachers []models.Teacher
-		h.db.Where("id IN ?", input.TeacherIDs).Find(&teachers)
-		h.db.Model(&course).Association("Teachers").Replace(teachers)
-	}
-
-	h.db.Preload("Category").Preload("Teachers").First(&course, "id = ?", course.ID)
+	h.db.Preload("Category").First(&course, "id = ?", course.ID)
 	c.JSON(http.StatusOK, gin.H{"data": course})
 }
 
@@ -237,6 +228,6 @@ func (h *CourseHandler) Delete(c *gin.Context) {
 // @Router /admin/courses [get]
 func (h *CourseHandler) AdminList(c *gin.Context) {
 	var courses []models.Course
-	h.db.Preload("Category").Preload("Teachers").Order("created_at desc").Find(&courses)
+	h.db.Preload("Category").Order("created_at desc").Find(&courses)
 	c.JSON(http.StatusOK, gin.H{"data": courses})
 }

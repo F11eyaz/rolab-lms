@@ -16,13 +16,6 @@ func NewLessonHandler(db *gorm.DB) *LessonHandler {
 	return &LessonHandler{db: db}
 }
 
-// GetLesson godoc
-// @Summary Get lesson content
-// @Tags lessons
-// @Produce json
-// @Param id path string true "Lesson ID"
-// @Success 200 {object} models.Lesson
-// @Router /lessons/{id} [get]
 func (h *LessonHandler) Get(c *gin.Context) {
 	var lesson models.Lesson
 	if err := h.db.First(&lesson, "id = ?", c.Param("id")).Error; err != nil {
@@ -32,35 +25,19 @@ func (h *LessonHandler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": lesson})
 }
 
-// ListAdminLessons godoc
-// @Summary List all lessons (admin)
-// @Tags lessons
-// @Security BearerAuth
-// @Produce json
-// @Success 200 {array} models.Lesson
-// @Router /admin/lessons [get]
 func (h *LessonHandler) AdminList(c *gin.Context) {
 	var lessons []models.Lesson
-	h.db.Order("program_id, order_index asc").Find(&lessons)
+	h.db.Order("course_id, order_index asc").Find(&lessons)
 	c.JSON(http.StatusOK, gin.H{"data": lessons})
 }
 
 type LessonInput struct {
 	Title      string `json:"title" binding:"required"`
 	Content    string `json:"content"`
-	ProgramID  string `json:"program_id" binding:"required"`
+	CourseID   string `json:"course_id" binding:"required"`
 	OrderIndex int    `json:"order_index"`
 }
 
-// CreateLesson godoc
-// @Summary Create lesson
-// @Tags lessons
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param body body LessonInput true "Lesson data"
-// @Success 201 {object} models.Lesson
-// @Router /admin/lessons [post]
 func (h *LessonHandler) Create(c *gin.Context) {
 	var input LessonInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -71,7 +48,7 @@ func (h *LessonHandler) Create(c *gin.Context) {
 	lesson := models.Lesson{
 		Title:      input.Title,
 		Content:    input.Content,
-		ProgramID:  input.ProgramID,
+		CourseID:   input.CourseID,
 		OrderIndex: input.OrderIndex,
 	}
 
@@ -80,20 +57,10 @@ func (h *LessonHandler) Create(c *gin.Context) {
 		return
 	}
 
-	h.updateProgramLessonsCount(input.ProgramID)
+	h.updateCourseLessonsCount(input.CourseID)
 	c.JSON(http.StatusCreated, gin.H{"data": lesson})
 }
 
-// UpdateLesson godoc
-// @Summary Update lesson
-// @Tags lessons
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "Lesson ID"
-// @Param body body LessonInput true "Lesson data"
-// @Success 200 {object} models.Lesson
-// @Router /admin/lessons/{id} [put]
 func (h *LessonHandler) Update(c *gin.Context) {
 	var lesson models.Lesson
 	if err := h.db.First(&lesson, "id = ?", c.Param("id")).Error; err != nil {
@@ -110,34 +77,27 @@ func (h *LessonHandler) Update(c *gin.Context) {
 	h.db.Model(&lesson).Updates(map[string]interface{}{
 		"title":       input.Title,
 		"content":     input.Content,
-		"program_id":  input.ProgramID,
+		"course_id":   input.CourseID,
 		"order_index": input.OrderIndex,
 	})
 
 	c.JSON(http.StatusOK, gin.H{"data": lesson})
 }
 
-// DeleteLesson godoc
-// @Summary Delete lesson
-// @Tags lessons
-// @Security BearerAuth
-// @Param id path string true "Lesson ID"
-// @Success 200 {object} map[string]string
-// @Router /admin/lessons/{id} [delete]
 func (h *LessonHandler) Delete(c *gin.Context) {
 	var lesson models.Lesson
 	if err := h.db.First(&lesson, "id = ?", c.Param("id")).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
-	programID := lesson.ProgramID
+	courseID := lesson.CourseID
 	h.db.Delete(&lesson)
-	h.updateProgramLessonsCount(programID)
+	h.updateCourseLessonsCount(courseID)
 	c.JSON(http.StatusOK, gin.H{"data": "deleted"})
 }
 
-func (h *LessonHandler) updateProgramLessonsCount(programID string) {
+func (h *LessonHandler) updateCourseLessonsCount(courseID string) {
 	var count int64
-	h.db.Model(&models.Lesson{}).Where("program_id = ?", programID).Count(&count)
-	h.db.Model(&models.Program{}).Where("id = ?", programID).Update("lessons_count", count)
+	h.db.Model(&models.Lesson{}).Where("course_id = ?", courseID).Count(&count)
+	h.db.Model(&models.Course{}).Where("id = ?", courseID).Update("lessons_count", count)
 }

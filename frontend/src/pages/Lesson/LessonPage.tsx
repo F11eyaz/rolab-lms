@@ -3,11 +3,11 @@ import {
 } from '@mantine/core';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { IconArrowLeft, IconArrowRight, IconBook, IconFileText, IconChevronRight } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconFileText, IconChevronRight, IconBook } from '@tabler/icons-react';
 import Navbar from '../../components/Layout/Navbar';
 import Footer from '../../components/Layout/Footer';
-import { lessonsApi, programsApi } from '../../api/client';
-import type { Lesson, Program } from '../../types';
+import { lessonsApi, coursesApi } from '../../api/client';
+import type { Lesson, Course } from '../../types';
 
 export default function LessonPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,10 +19,10 @@ export default function LessonPage() {
     enabled: !!id,
   });
 
-  const { data: program } = useQuery({
-    queryKey: ['program', lesson?.program_id],
-    queryFn: () => programsApi.get(lesson!.program_id).then((r) => r.data.data as Program),
-    enabled: !!lesson?.program_id,
+  const { data: course } = useQuery({
+    queryKey: ['course', lesson?.course_id],
+    queryFn: () => coursesApi.get(lesson!.course_id).then((r) => r.data.data as Course),
+    enabled: !!lesson?.course_id,
   });
 
   if (isLoading) {
@@ -38,7 +38,7 @@ export default function LessonPage() {
   }
   if (!lesson) return null;
 
-  const lessons = program?.lessons || [];
+  const lessons = course?.lessons || [];
   const currentIndex = lessons.findIndex((l) => l.id === id);
   const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
@@ -50,14 +50,13 @@ export default function LessonPage() {
       <Box style={{ paddingTop: 80 }}>
         <Container size="xl">
           <Group align="flex-start" gap="xl" pt={32} pb={48}>
-            {/* Left sidebar */}
-            {program && (
+
+            {/* Сайдбар — список уроков курса */}
+            {course && lessons.length > 0 && (
               <Box
                 style={{
-                  width: 280,
-                  flexShrink: 0,
-                  position: 'sticky',
-                  top: 90,
+                  width: 280, flexShrink: 0,
+                  position: 'sticky', top: 90,
                   maxHeight: 'calc(100vh - 110px)',
                   overflow: 'hidden',
                 }}
@@ -65,14 +64,18 @@ export default function LessonPage() {
               >
                 <Paper withBorder radius="xl" p={0} style={{ overflow: 'hidden' }}>
                   <Box p="lg" style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <Anchor component={Link} to={`/programs/${program.id}`} style={{ textDecoration: 'none' }}>
+                    <Anchor component={Link} to={`/courses/${course.id}`} style={{ textDecoration: 'none' }}>
                       <Group gap="sm">
-                        <Box style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #8B5CF6, #6366F1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Box style={{
+                          width: 36, height: 36, borderRadius: 8,
+                          background: 'linear-gradient(135deg, #8B5CF6, #6366F1)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        }}>
                           <IconBook size={18} color="white" stroke={1.5} />
                         </Box>
                         <Box>
-                          <Text size="xs" c="dimmed">Программа</Text>
-                          <Text size="sm" fw={600} lineClamp={1}>{program.title}</Text>
+                          <Text size="xs" c="dimmed">Курс</Text>
+                          <Text size="sm" fw={600} lineClamp={1}>{course.title}</Text>
                         </Box>
                       </Group>
                     </Anchor>
@@ -84,10 +87,8 @@ export default function LessonPage() {
                         component={Link}
                         to={`/lessons/${l.id}`}
                         style={{
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 12,
+                          textDecoration: 'none', display: 'flex',
+                          alignItems: 'center', gap: 12,
                           padding: '10px 16px',
                           background: l.id === id ? '#f5f3ff' : 'transparent',
                           borderLeft: l.id === id ? '3px solid #8B5CF6' : '3px solid transparent',
@@ -106,18 +107,18 @@ export default function LessonPage() {
               </Box>
             )}
 
-            {/* Main content */}
+            {/* Основной контент */}
             <Box style={{ flex: 1, minWidth: 0 }}>
               {/* Breadcrumb */}
               <Group gap={4} mb={24}>
                 <Anchor component={Link} to="/" size="xs" c="dimmed" style={{ textDecoration: 'none' }}>Главная</Anchor>
                 <IconChevronRight size={12} color="#9ca3af" />
                 <Anchor component={Link} to="/courses" size="xs" c="dimmed" style={{ textDecoration: 'none' }}>Курсы</Anchor>
-                {program && (
+                {course && (
                   <>
                     <IconChevronRight size={12} color="#9ca3af" />
-                    <Anchor component={Link} to={`/programs/${program.id}`} size="xs" c="dimmed" style={{ textDecoration: 'none' }} lineClamp={1}>
-                      {program.title}
+                    <Anchor component={Link} to={`/courses/${course.id}`} size="xs" c="dimmed" style={{ textDecoration: 'none' }} lineClamp={1}>
+                      {course.title}
                     </Anchor>
                   </>
                 )}
@@ -126,14 +127,17 @@ export default function LessonPage() {
               </Group>
 
               <Paper withBorder radius="xl" p={40} mb="xl">
-                {/* Lesson header */}
                 <Group gap="sm" mb={24}>
                   <Box style={{ width: 40, height: 40, borderRadius: 10, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <IconFileText size={20} color="#8B5CF6" stroke={1.5} />
                   </Box>
                   <Box>
-                    <Text size="xs" c="dimmed">Урок {currentIndex + 1} из {lessons.length}</Text>
-                    <Text size="xs" c="violet" fw={600}>{program?.title}</Text>
+                    <Text size="xs" c="dimmed">
+                      Урок {currentIndex + 1} из {lessons.length}
+                    </Text>
+                    {course && (
+                      <Text size="xs" c="violet" fw={600}>{course.title}</Text>
+                    )}
                   </Box>
                 </Group>
 
@@ -154,37 +158,29 @@ export default function LessonPage() {
                 )}
               </Paper>
 
-              {/* Navigation */}
               <Group justify="space-between">
                 <Button
-                  variant="light"
-                  color="violet"
-                  radius={100}
+                  variant="light" color="violet" radius={100}
                   leftSection={<IconArrowLeft size={16} />}
                   disabled={!prevLesson}
                   onClick={() => prevLesson && navigate(`/lessons/${prevLesson.id}`)}
                   size="md"
                 >
-                  {prevLesson?.title || 'Начало'}
+                  {prevLesson ? prevLesson.title : 'Начало'}
                 </Button>
+                {course && (
+                  <Button component={Link} to={`/courses/${course.id}`} variant="subtle" color="gray" size="sm">
+                    К содержанию курса
+                  </Button>
+                )}
                 <Button
-                  component={Link}
-                  to={`/programs/${lesson.program_id}`}
-                  variant="subtle"
-                  color="gray"
-                  size="sm"
-                >
-                  К содержанию
-                </Button>
-                <Button
-                  color="violet"
-                  radius={100}
+                  color="violet" radius={100}
                   rightSection={<IconArrowRight size={16} />}
                   disabled={!nextLesson}
                   onClick={() => nextLesson && navigate(`/lessons/${nextLesson.id}`)}
                   size="md"
                 >
-                  {nextLesson?.title || 'Конец'}
+                  {nextLesson ? nextLesson.title : 'Конец'}
                 </Button>
               </Group>
             </Box>

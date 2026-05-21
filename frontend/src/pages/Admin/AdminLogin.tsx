@@ -66,9 +66,6 @@ export default function AdminLogin() {
         <Button fullWidth color="violet" size="md" loading={loading} onClick={handleLogin}>
           Войти
         </Button>
-        <Text size="xs" c="dimmed" ta="center" mt="md">
-          demo: admin@rolab.kz / admin123
-        </Text>
       </Paper>
     </Box>
   );

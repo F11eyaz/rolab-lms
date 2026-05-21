@@ -55,7 +55,7 @@ export default function Footer() {
             {[
               { icon: <IconMail size={14} />, text: 'info@rolab.kz' },
               { icon: <IconPhone size={14} />, text: '+7 (777) 123-45-67' },
-              { icon: <IconMapPin size={14} />, text: 'г. Алматы' },
+              { icon: <IconMapPin size={14} />, text: 'г. Астана' },
             ].map((item) => (
               <Group key={item.text} gap={8}>
                 <Box c="gray.5">{item.icon}</Box>

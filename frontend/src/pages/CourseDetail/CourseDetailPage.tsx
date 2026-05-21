@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Box, Container, Text, Title, Group, Button, Avatar, Paper,
-  Progress, Textarea, TextInput, Select, Skeleton, Stack, Divider, ThemeIcon
+  Progress, Textarea, TextInput, Skeleton, Stack, Divider, ThemeIcon
 } from '@mantine/core';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,13 +13,13 @@ import {
 import Navbar from '../../components/Layout/Navbar';
 import Footer from '../../components/Layout/Footer';
 import StarRating from '../../components/StarRating';
-import { coursesApi, programsApi } from '../../api/client';
+import { coursesApi, reviewsApi } from '../../api/client';
 import type { Course, Review } from '../../types';
 
 const NAV_ITEMS = [
   { id: 'about', label: 'О курсе' },
-  { id: 'teachers', label: 'Преподаватели' },
-  { id: 'content', label: 'Содержание' },
+  { id: 'program', label: 'Программа курса' },
+  { id: 'lessons', label: 'Уроки' },
   { id: 'reviews', label: 'Отзывы' },
 ];
 
@@ -29,14 +29,14 @@ export default function CourseDetailPage() {
   const [activeSection, setActiveSection] = useState('about');
 
   const aboutRef = useRef<HTMLDivElement>(null);
-  const teachersRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const programRef = useRef<HTMLDivElement>(null);
+  const lessonsRef = useRef<HTMLDivElement>(null);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   const refs: Record<string, React.RefObject<HTMLDivElement | null>> = {
     about: aboutRef,
-    teachers: teachersRef,
-    content: contentRef,
+    program: programRef,
+    lessons: lessonsRef,
     reviews: reviewsRef,
   };
 
@@ -76,14 +76,13 @@ export default function CourseDetailPage() {
     enabled: !!id,
   });
 
-  const [reviewForm, setReviewForm] = useState({ author_name: '', comment: '', rating: 0, program_id: '' });
+  const [reviewForm, setReviewForm] = useState({ author_name: '', comment: '', rating: 0 });
 
   const submitReview = useMutation({
-    mutationFn: ({ program_id, ...data }: typeof reviewForm) =>
-      programsApi.submitReview(program_id, data),
+    mutationFn: (data: typeof reviewForm) => reviewsApi.submit(id!, data),
     onSuccess: () => {
       notifications.show({ message: 'Отзыв успешно добавлен!', color: 'green' });
-      setReviewForm({ author_name: '', comment: '', rating: 0, program_id: '' });
+      setReviewForm({ author_name: '', comment: '', rating: 0 });
       qc.invalidateQueries({ queryKey: ['reviews', id] });
     },
   });
@@ -99,7 +98,6 @@ export default function CourseDetailPage() {
   }
   if (!course) return null;
 
-  const teacher = course.teachers?.[0];
   const ratingCounts = [5, 4, 3, 2, 1].map((r) => ({
     rating: r,
     count: reviews.filter((rv) => rv.rating === r).length,
@@ -159,7 +157,7 @@ export default function CourseDetailPage() {
                 <Group gap={5}>
                   <IconBook size={15} color="#9C5FE5" stroke={1.5} />
                   <Text size="sm" c="dimmed">
-                    {course.programs_count || course.programs?.length || 0} программ · {course.lessons_count} уроков
+                    {course.lessons_count} уроков
                   </Text>
                 </Group>
                 <Group gap={5}>
@@ -172,18 +170,6 @@ export default function CourseDetailPage() {
                 </Group>
               </Group>
 
-              {teacher && (
-                <Group gap="sm">
-                  <Avatar
-                    src={teacher.photo_url || undefined}
-                    size={30} radius="50%" color="violet"
-                    style={{ border: '2px solid #ede9fe' }}
-                  >
-                    {teacher.name.charAt(0)}
-                  </Avatar>
-                  <Text size="sm" c="dark" fw={500}>{teacher.name}</Text>
-                </Group>
-              )}
             </Box>
 
             {/* Enrollment card */}
@@ -290,61 +276,63 @@ export default function CourseDetailPage() {
             </Paper>
           </Box>
 
-          {/* Преподаватели */}
-          <Box ref={teachersRef} mb={64}>
-            <Text fw={800} size="xl" mb={20} style={{ color: '#0a0a0a' }}>Преподаватели</Text>
-            <Stack gap="md">
-              {course.teachers?.map((t) => (
-                <Paper key={t.id} withBorder p="xl" radius="xl">
-                  <Group gap="lg">
-                    <Avatar src={t.photo_url || undefined} size={72} radius="50%" color="violet" style={{ border: '3px solid #f0ebff', flexShrink: 0 }}>
-                      {t.name.charAt(0)}
-                    </Avatar>
-                    <Box style={{ flex: 1 }}>
-                      <Text size="xs" c="violet" fw={600} mb={4}>Автор курса</Text>
-                      <Text fw={800} size="xl" mb={4}>{t.name}</Text>
-                      <Text size="sm" c="dimmed">{t.specialty} · {t.experience} лет опыта</Text>
-                      {t.bio && <Text size="sm" c="dimmed" mt="sm" style={{ lineHeight: 1.7 }}>{t.bio}</Text>}
-                    </Box>
-                  </Group>
-                </Paper>
-              ))}
-              {(!course.teachers || course.teachers.length === 0) && (
-                <Paper withBorder p="xl" radius="xl" ta="center"><Text c="dimmed">Преподаватели не указаны</Text></Paper>
-              )}
-            </Stack>
+          {/* Программа курса */}
+          <Box ref={programRef} mb={64}>
+            <Text fw={800} size="xl" mb={20} style={{ color: '#0a0a0a' }}>Программа курса</Text>
+            {course.program_content ? (
+              <Paper withBorder p="xl" radius="xl">
+                <div
+                  className="lesson-content"
+                  dangerouslySetInnerHTML={{ __html: course.program_content }}
+                />
+              </Paper>
+            ) : (
+              <Paper withBorder p="xl" radius="xl" ta="center">
+                <Text c="dimmed">Программа курса ещё не добавлена</Text>
+              </Paper>
+            )}
           </Box>
 
-          {/* Содержание */}
-          <Box ref={contentRef} mb={64}>
-            <Text fw={800} size="xl" mb={20} style={{ color: '#0a0a0a' }}>Содержание</Text>
+          {/* Уроки */}
+          <Box ref={lessonsRef} mb={64}>
+            <Text fw={800} size="xl" mb={20} style={{ color: '#0a0a0a' }}>Уроки</Text>
             <Stack gap="sm">
-              {course.programs?.map((prog) => (
+              {course.lessons?.map((lesson, i) => (
                 <Paper
-                  key={prog.id}
+                  key={lesson.id}
                   withBorder radius="xl" p="lg"
-                  component={Link} to={`/programs/${prog.id}`}
+                  component={Link} to={`/lessons/${lesson.id}`}
                   style={{ textDecoration: 'none', transition: 'box-shadow 0.2s' }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(124,58,237,0.1)';
+                    (e.currentTarget as HTMLElement).style.borderColor = '#ede9fe';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '';
+                    (e.currentTarget as HTMLElement).style.borderColor = '';
+                  }}
                 >
                   <Group justify="space-between" align="center">
                     <Group gap="md">
-                      <ThemeIcon size={48} radius="md" style={{ background: 'linear-gradient(135deg, #8B5CF6, #6366F1)', flexShrink: 0 }}>
-                        <IconBook size={22} stroke={1.5} color="white" />
+                      <ThemeIcon
+                        size={48} radius="md"
+                        style={{ background: 'linear-gradient(135deg, #8B5CF6, #6366F1)', flexShrink: 0 }}
+                      >
+                        <Text style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>{i + 1}</Text>
                       </ThemeIcon>
                       <Box>
-                        <Text fw={600} mb={4}>{prog.title}</Text>
-                        <Group gap="md">
-                          <Text size="xs" c="dimmed">{prog.lessons_count} уроков</Text>
-                          {prog.price > 0 && <Text size="xs" c="violet" fw={600}>{prog.price.toLocaleString()} ₸</Text>}
-                        </Group>
+                        <Text fw={600} style={{ color: '#0a0a0a' }}>{lesson.title}</Text>
+                        <Text size="xs" c="dimmed" mt={2}>Урок {i + 1}</Text>
                       </Box>
                     </Group>
                     <IconChevronRight size={18} color="#9ca3af" />
                   </Group>
                 </Paper>
               ))}
-              {(!course.programs || course.programs.length === 0) && (
-                <Paper withBorder p="xl" radius="xl" ta="center"><Text c="dimmed">Программы ещё не добавлены</Text></Paper>
+              {(!course.lessons || course.lessons.length === 0) && (
+                <Paper withBorder p="xl" radius="xl" ta="center">
+                  <Text c="dimmed">Уроки ещё не добавлены</Text>
+                </Paper>
               )}
             </Stack>
           </Box>
@@ -392,23 +380,6 @@ export default function CourseDetailPage() {
                         <Text fw={600} size="sm">{review.author_name}</Text>
                         <Group gap={6} mt={2}>
                           <Text size="xs" c="dimmed">{new Date(review.created_at).toLocaleDateString('ru')}</Text>
-                          {review.program && (
-                            <>
-                              <Text size="xs" c="dimmed">·</Text>
-                              <Box
-                                style={{
-                                  background: 'rgba(124,58,237,0.08)',
-                                  color: '#7c3aed',
-                                  fontSize: 11,
-                                  fontWeight: 600,
-                                  padding: '1px 8px',
-                                  borderRadius: 4,
-                                }}
-                              >
-                                {review.program.title}
-                              </Box>
-                            </>
-                          )}
                         </Group>
                       </Box>
                     </Group>
@@ -434,14 +405,6 @@ export default function CourseDetailPage() {
             <Paper withBorder p="xl" radius="xl">
               <Text fw={700} size="lg" mb="lg">Оставить отзыв</Text>
               <Stack gap="md">
-                <Select
-                  label="Программа"
-                  placeholder="Выберите программу..."
-                  data={(course.programs || []).map((p) => ({ value: p.id, label: p.title }))}
-                  value={reviewForm.program_id}
-                  onChange={(v) => setReviewForm({ ...reviewForm, program_id: v || '' })}
-                  radius="xl"
-                />
                 <TextInput
                   label="Ваше имя" placeholder="Введите имя"
                   value={reviewForm.author_name}
@@ -453,7 +416,7 @@ export default function CourseDetailPage() {
                   <StarRating value={reviewForm.rating} onChange={(v) => setReviewForm({ ...reviewForm, rating: v })} size={28} />
                 </Box>
                 <Textarea
-                  label="Комментарий" placeholder="Поделитесь впечатлением о программе..." minRows={3}
+                  label="Комментарий" placeholder="Поделитесь впечатлением о курсе..." minRows={3}
                   value={reviewForm.comment}
                   onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
                   radius="xl"
@@ -462,7 +425,7 @@ export default function CourseDetailPage() {
                   color="violet" radius={100} size="md"
                   onClick={() => submitReview.mutate(reviewForm)}
                   loading={submitReview.isPending}
-                  disabled={!reviewForm.author_name || !reviewForm.comment || !reviewForm.rating || !reviewForm.program_id}
+                  disabled={!reviewForm.author_name || !reviewForm.comment || !reviewForm.rating}
                 >
                   Отправить отзыв
                 </Button>

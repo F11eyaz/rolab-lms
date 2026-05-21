@@ -16,20 +16,10 @@ func NewReviewHandler(db *gorm.DB) *ReviewHandler {
 	return &ReviewHandler{db: db}
 }
 
-// ListCourseReviews godoc
-// @Summary List approved reviews for a course (through its programs)
-// @Tags reviews
-// @Produce json
-// @Param id path string true "Course ID"
-// @Success 200 {array} models.Review
-// @Router /courses/{id}/reviews [get]
 func (h *ReviewHandler) ListForCourse(c *gin.Context) {
 	var reviews []models.Review
-	h.db.
-		Preload("Program").
-		Joins("JOIN programs ON programs.id = reviews.program_id").
-		Where("programs.course_id = ? AND reviews.is_approved = true", c.Param("id")).
-		Order("reviews.created_at desc").
+	h.db.Where("course_id = ? AND is_approved = true", c.Param("id")).
+		Order("created_at desc").
 		Find(&reviews)
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
@@ -41,15 +31,6 @@ type ReviewInput struct {
 	Comment     string `json:"comment" binding:"required"`
 }
 
-// SubmitReview godoc
-// @Summary Submit a review for a program
-// @Tags reviews
-// @Accept json
-// @Produce json
-// @Param id path string true "Program ID"
-// @Param body body ReviewInput true "Review data"
-// @Success 201 {object} models.Review
-// @Router /programs/{id}/reviews [post]
 func (h *ReviewHandler) Submit(c *gin.Context) {
 	var input ReviewInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -57,15 +38,15 @@ func (h *ReviewHandler) Submit(c *gin.Context) {
 		return
 	}
 
-	programID := c.Param("id")
-	var program models.Program
-	if err := h.db.First(&program, "id = ?", programID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "program not found"})
+	courseID := c.Param("id")
+	var course models.Course
+	if err := h.db.First(&course, "id = ?", courseID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "course not found"})
 		return
 	}
 
 	review := models.Review{
-		ProgramID:   programID,
+		CourseID:    courseID,
 		AuthorName:  input.AuthorName,
 		AuthorEmail: input.AuthorEmail,
 		Rating:      input.Rating,
@@ -78,56 +59,34 @@ func (h *ReviewHandler) Submit(c *gin.Context) {
 		return
 	}
 
-	h.recalculateCourseRating(program.CourseID)
-	h.db.Preload("Program").First(&review, "id = ?", review.ID)
+	h.recalculateCourseRating(courseID)
 	c.JSON(http.StatusCreated, gin.H{"data": review})
 }
 
-// AdminListReviews godoc
-// @Summary List all reviews (admin)
-// @Tags reviews
-// @Security BearerAuth
-// @Produce json
-// @Success 200 {array} models.Review
-// @Router /admin/reviews [get]
 func (h *ReviewHandler) AdminList(c *gin.Context) {
 	var reviews []models.Review
-	h.db.Preload("Program").Order("created_at desc").Find(&reviews)
+	h.db.Order("created_at desc").Find(&reviews)
 	c.JSON(http.StatusOK, gin.H{"data": reviews})
 }
 
-// ApproveReview godoc
-// @Summary Approve a review
-// @Tags reviews
-// @Security BearerAuth
-// @Param id path string true "Review ID"
-// @Success 200 {object} models.Review
-// @Router /admin/reviews/{id}/approve [put]
 func (h *ReviewHandler) Approve(c *gin.Context) {
 	var review models.Review
-	if err := h.db.Preload("Program").First(&review, "id = ?", c.Param("id")).Error; err != nil {
+	if err := h.db.First(&review, "id = ?", c.Param("id")).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
 	h.db.Model(&review).Update("is_approved", true)
-	h.recalculateCourseRating(review.Program.CourseID)
+	h.recalculateCourseRating(review.CourseID)
 	c.JSON(http.StatusOK, gin.H{"data": review})
 }
 
-// DeleteReview godoc
-// @Summary Delete a review
-// @Tags reviews
-// @Security BearerAuth
-// @Param id path string true "Review ID"
-// @Success 200 {object} map[string]string
-// @Router /admin/reviews/{id} [delete]
 func (h *ReviewHandler) Delete(c *gin.Context) {
 	var review models.Review
-	if err := h.db.Preload("Program").First(&review, "id = ?", c.Param("id")).Error; err != nil {
+	if err := h.db.First(&review, "id = ?", c.Param("id")).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
-	courseID := review.Program.CourseID
+	courseID := review.CourseID
 	h.db.Delete(&review)
 	h.recalculateCourseRating(courseID)
 	c.JSON(http.StatusOK, gin.H{"data": "deleted"})
@@ -143,9 +102,8 @@ func (h *ReviewHandler) recalculateCourseRating(courseID string) {
 	}
 	var result Result
 	h.db.Model(&models.Review{}).
-		Select("AVG(reviews.rating) as avg, COUNT(*) as count").
-		Joins("JOIN programs ON programs.id = reviews.program_id").
-		Where("programs.course_id = ? AND reviews.is_approved = true", courseID).
+		Select("AVG(rating) as avg, COUNT(*) as count").
+		Where("course_id = ? AND is_approved = true", courseID).
 		Scan(&result)
 
 	h.db.Model(&models.Course{}).Where("id = ?", courseID).Updates(map[string]interface{}{

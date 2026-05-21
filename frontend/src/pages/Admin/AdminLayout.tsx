@@ -3,7 +3,7 @@ import {
   Box, Text, Group, Stack, Anchor, ThemeIcon, Badge, Button
 } from '@mantine/core';
 import {
-  IconHome, IconBuilding, IconTag, IconBook, IconStack2, IconFileText,
+  IconHome, IconBuilding, IconBook, IconFileText,
   IconUsers, IconMessage, IconLogout
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -12,9 +12,7 @@ import { adminApi } from '../../api/client';
 const navItems = [
   { label: 'Дашборд', to: '/admin', icon: <IconHome size={18} stroke={1.5} />, exact: true },
   { label: 'Компания', to: '/admin/company', icon: <IconBuilding size={18} stroke={1.5} /> },
-  { label: 'Категории', to: '/admin/categories', icon: <IconTag size={18} stroke={1.5} /> },
   { label: 'Курсы', to: '/admin/courses', icon: <IconBook size={18} stroke={1.5} /> },
-  { label: 'Программы', to: '/admin/programs', icon: <IconStack2 size={18} stroke={1.5} /> },
   { label: 'Уроки', to: '/admin/lessons', icon: <IconFileText size={18} stroke={1.5} /> },
   { label: 'Учителя', to: '/admin/teachers', icon: <IconUsers size={18} stroke={1.5} /> },
   { label: 'Отзывы', to: '/admin/reviews', icon: <IconMessage size={18} stroke={1.5} /> },

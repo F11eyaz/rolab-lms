@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Group, Button, Text, Box, Anchor, Drawer, Stack, ActionIcon } from '@mantine/core';
+import { Group, Text, Box, Anchor, Drawer, Stack, ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconMenu2, IconX } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const links = [
-  { label: 'Главная', to: '/' },
+  { label: 'О компании', to: '/' },
+  { label: 'Платформа', to: '/platform' },
   { label: 'Курсы', to: '/courses' },
 ];
 
@@ -75,29 +76,10 @@ export default function Navbar() {
               })}
             </Group>
 
-            {/* CTA */}
-            <Group gap="sm">
-              <Button
-                component={Link}
-                to="/admin/login"
-                size="sm"
-                radius={8}
-                visibleFrom="sm"
-                style={{
-                  background: 'linear-gradient(135deg, #9C5FE5, #F0875A)',
-                  border: 'none',
-                  fontWeight: 600,
-                  fontSize: 13,
-                  height: 38,
-                  padding: '0 20px',
-                }}
-              >
-                Войти
-              </Button>
-              <ActionIcon hiddenFrom="sm" variant="subtle" size="lg" style={{ color: '#333' }} onClick={open}>
-                <IconMenu2 size={20} />
-              </ActionIcon>
-            </Group>
+            {/* Mobile menu */}
+            <ActionIcon hiddenFrom="sm" variant="subtle" size="lg" style={{ color: '#333' }} onClick={open}>
+              <IconMenu2 size={20} />
+            </ActionIcon>
           </Group>
         </Box>
       </Box>
@@ -117,12 +99,6 @@ export default function Navbar() {
               {l.label}
             </Anchor>
           ))}
-          <Button
-            component={Link} to="/admin/login" fullWidth mt="md" radius={8} onClick={close}
-            style={{ background: 'linear-gradient(135deg, #9C5FE5, #F0875A)', border: 'none' }}
-          >
-            Войти
-          </Button>
         </Stack>
       </Drawer>
     </>

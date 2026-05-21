@@ -30,7 +30,6 @@ func Migrate(db *gorm.DB) {
 		&models.Teacher{},
 		&models.Category{},
 		&models.Course{},
-		&models.Program{},
 		&models.Lesson{},
 		&models.Review{},
 	)

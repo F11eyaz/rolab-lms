@@ -50,3 +50,54 @@ body {
   font-family: monospace;
   font-size: 0.9em;
 }
+
+/* ── Table styles ── */
+.lesson-content table {
+  border-collapse: collapse !important;
+  width: 100%;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+.lesson-content table td,
+.lesson-content table th {
+  border: 1px solid #d1d5db !important;
+  padding: 10px 14px !important;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+.lesson-content table th {
+  background: #f3f4f6 !important;
+  font-weight: 700;
+  color: #111827;
+}
+
+.lesson-content table tr:nth-child(even) td {
+  background: #f9fafb !important;
+}
+
+/* Rich editor (ProseMirror) table styles */
+.ProseMirror table {
+  border-collapse: collapse !important;
+  width: 100%;
+  margin: 16px 0;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid #d1d5db !important;
+  padding: 8px 12px !important;
+  vertical-align: top;
+  min-width: 60px;
+}
+
+.ProseMirror table th {
+  background: #f3f4f6 !important;
+  font-weight: 700;
+}
+
+.ProseMirror .selectedCell {
+  background: #dbeafe !important;
+}

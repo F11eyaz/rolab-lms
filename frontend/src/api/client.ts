@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 export const api = axios.create({
   baseURL: `${API_URL}/api/v1`,
@@ -34,19 +34,14 @@ export const teachersApi = {
   get: (id: string) => api.get(`/teachers/${id}`),
 };
 
-export const categoriesApi = {
-  list: () => api.get('/categories'),
-};
-
 export const coursesApi = {
   list: (params?: Record<string, unknown>) => api.get('/courses', { params }),
   get: (id: string) => api.get(`/courses/${id}`),
   getReviews: (id: string) => api.get(`/courses/${id}/reviews`),
 };
 
-export const programsApi = {
-  get: (id: string) => api.get(`/programs/${id}`),
-  submitReview: (id: string, data: unknown) => api.post(`/programs/${id}/reviews`, data),
+export const reviewsApi = {
+  submit: (courseId: string, data: unknown) => api.post(`/courses/${courseId}/reviews`, data),
 };
 
 export const lessonsApi = {
@@ -77,11 +72,6 @@ export const adminApi = {
   createCourse: (data: unknown) => api.post('/admin/courses', data),
   updateCourse: (id: string, data: unknown) => api.put(`/admin/courses/${id}`, data),
   deleteCourse: (id: string) => api.delete(`/admin/courses/${id}`),
-  // Programs
-  listPrograms: () => api.get('/admin/programs'),
-  createProgram: (data: unknown) => api.post('/admin/programs', data),
-  updateProgram: (id: string, data: unknown) => api.put(`/admin/programs/${id}`, data),
-  deleteProgram: (id: string) => api.delete(`/admin/programs/${id}`),
   // Lessons
   listLessons: () => api.get('/admin/lessons'),
   createLesson: (data: unknown) => api.post('/admin/lessons', data),

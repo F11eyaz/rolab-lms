@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -11,6 +12,7 @@ type Config struct {
 	JWTSecret   string
 	Port        string
 	UploadDir   string
+	BaseURL     string
 }
 
 func Load() *Config {
@@ -27,10 +29,16 @@ func Load() *Config {
 		uploadDir = "./uploads"
 	}
 
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://localhost:%s", port)
+	}
+
 	return &Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		JWTSecret:   os.Getenv("JWT_SECRET"),
 		Port:        port,
 		UploadDir:   uploadDir,
+		BaseURL:     baseURL,
 	}
 }

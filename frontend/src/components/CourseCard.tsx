@@ -1,5 +1,5 @@
 import { Card, Image, Text, Badge, Group, Button, Box } from '@mantine/core';
-import { IconHeart, IconBook, IconLanguage, IconUser } from '@tabler/icons-react';
+import { IconHeart, IconBook, IconLanguage } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
 import type { Course } from '../types';
@@ -10,7 +10,6 @@ interface CourseCardProps {
 }
 
 export default function CourseCard({ course, view = 'list' }: CourseCardProps) {
-  const teacher = course.teachers?.[0];
 
   if (view === 'grid') {
     return (
@@ -66,9 +65,6 @@ export default function CourseCard({ course, view = 'list' }: CourseCardProps) {
           </Box>
           <Group gap="xs" mb="xs">
             {course.is_combo && <Badge color="violet" size="sm">Комбо</Badge>}
-            {course.programs?.length > 0 && (
-              <Badge color="gray" size="sm" variant="light">{course.programs.length} курсов</Badge>
-            )}
           </Group>
           <Text fw={600} size="lg" mb={4}>{course.title}</Text>
           <Group gap="xs" mb="sm">
@@ -90,15 +86,6 @@ export default function CourseCard({ course, view = 'list' }: CourseCardProps) {
                 <Text size="sm" fw={500}>{course.language === 'ru' ? 'Русский язык' : 'Қазақ тілі'}</Text>
               </Box>
             </Group>
-            {teacher && (
-              <Group gap={6}>
-                <IconUser size={14} color="#8B5CF6" stroke={1.5} />
-                <Box>
-                  <Text size="xs" c="dimmed">Автор</Text>
-                  <Text size="sm" fw={500}>{teacher.name}</Text>
-                </Box>
-              </Group>
-            )}
           </Group>
           <Group justify="space-between" align="center">
             <Group gap="xs">

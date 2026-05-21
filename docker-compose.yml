@@ -35,12 +35,13 @@ services:
       - ./backend/uploads:/app/uploads
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ""
     restart: always
     ports:
       - "3001:80"
-    environment:
-      VITE_API_URL: ${VITE_API_URL}
     depends_on:
       - backend
 
