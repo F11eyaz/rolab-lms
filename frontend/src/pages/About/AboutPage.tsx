@@ -485,16 +485,17 @@ export default function AboutPage() {
                   padding: '52px 36px 36px',
                   flex: 1,
                 }}>
-                  <Stack gap={24}>
+                  <Stack gap={20}>
                     {col.items.map(item => (
-                      <Group key={item} gap={16} align="center">
+                      <Group key={item} gap={14} align="flex-start" wrap="nowrap">
                         <Box style={{
                           width: 12, height: 12,
                           background: '#4A7EEB',
                           transform: 'rotate(45deg)',
                           flexShrink: 0,
+                          marginTop: 4,
                         }} />
-                        <Text style={{ fontSize: 17, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.4 }}>{item}</Text>
+                        <Text style={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.5 }}>{item}</Text>
                       </Group>
                     ))}
                   </Stack>
