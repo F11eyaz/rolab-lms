@@ -435,7 +435,7 @@ export default function AboutPage() {
             Направления КПК
           </Title>
 
-          <SimpleGrid cols={{ base: 1, md: 2 }} spacing={32} style={{ alignItems: 'stretch' }}>
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing={32} style={{ alignItems: 'stretch' }}>
             {[
               {
                 header: 'Искусственный интеллект',
@@ -454,6 +454,16 @@ export default function AboutPage() {
                   'Программирование роботов',
                   'Подготовка к соревнованиям',
                   'Практические проекты',
+                ],
+              },
+              {
+                header: 'Научные проекты',
+                items: [
+                  'Выбор темы и формулировка гипотезы',
+                  'Сбор и анализ данных',
+                  'Оформление исследовательской работы',
+                  'Подготовка к защите проекта',
+                  'Публичное представление результатов',
                 ],
               },
             ].map((col) => (
