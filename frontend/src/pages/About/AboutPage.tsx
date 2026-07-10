@@ -583,6 +583,99 @@ export default function AboutPage() {
       </Box>
 
       {/* ═══════════════════════════════════════════════════
+          ОПРОСЫ — две анкеты Google Forms
+          Светлый фон, 2 карточки с CTA-кнопками
+      ═══════════════════════════════════════════════════ */}
+      <Box style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(160deg, #f8faff 0%, #edf2ff 50%, #e6eeff 100%)',
+        padding: '96px 24px',
+      }}>
+        <Wave style={{ bottom: -60, right: -80, width: 300, transform: 'scaleX(-1) rotate(-10deg)', opacity: 0.5 }} />
+
+        <Container size="md" style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+          <Title style={{
+            fontSize: 'clamp(28px, 4vw, 48px)',
+            fontWeight: 900,
+            color: BLUE_TEXT,
+            marginBottom: 16,
+            textAlign: 'center',
+            letterSpacing: '-1px',
+          }}>
+            Пройдите наши опросы
+          </Title>
+          <Text style={{ textAlign: 'center', color: '#555', fontSize: 17, marginBottom: 48, maxWidth: 620, margin: '0 auto 48px' }}>
+            Ваши ответы помогают нам делать программы лучше. Это займёт всего несколько минут.
+          </Text>
+
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={24}>
+            {[
+              {
+                title: 'Искусственный интеллект для педагога: создание контента, автоматизация и аналитика',
+                url: 'https://forms.gle/KW8ZrXRLxEWhW6De8',
+                icon: (
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="4" y="7" width="16" height="12" rx="2" />
+                    <path d="M12 7V4M9 4h6" />
+                    <circle cx="9" cy="13" r="1.2" fill="#fff" stroke="none" />
+                    <circle cx="15" cy="13" r="1.2" fill="#fff" stroke="none" />
+                    <path d="M2 12v2M22 12v2" />
+                  </svg>
+                ),
+              },
+              {
+                title: 'Методика организации научно-исследовательской деятельности обучающихся: от идеи до защиты проекта',
+                url: 'https://forms.gle/yYBZwhRJt77TV4Bz9',
+                icon: (
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 3h6v4l4 11a2 2 0 0 1-1.9 2.6H6.9A2 2 0 0 1 5 18l4-11V3Z" />
+                    <path d="M9 3h6M7.5 14h9" />
+                  </svg>
+                ),
+              },
+            ].map((s) => (
+              <Box key={s.url} style={{
+                background: DARK_BLUE,
+                borderRadius: 20,
+                padding: '40px 36px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: 16,
+                boxShadow: '0 12px 40px rgba(34,53,197,0.25)',
+              }}>
+                {s.icon}
+                <Text style={{ fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 900, color: '#fff', lineHeight: 1.35 }}>
+                  {s.title}
+                </Text>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    marginTop: 8,
+                    display: 'inline-block',
+                    background: '#fff',
+                    color: DARK_BLUE,
+                    padding: '13px 36px',
+                    borderRadius: 12,
+                    fontSize: 15,
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+                  }}
+                >
+                  Пройти опрос
+                </a>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Container>
+      </Box>
+
+      {/* ═══════════════════════════════════════════════════
           СЛАЙД 9 — КОНТАКТЫ
           Светлый фон, волна слева, 2D логотип, карточка с QR
       ═══════════════════════════════════════════════════ */}
