@@ -167,16 +167,23 @@ export default function CoursesAdmin() {
     if (!file) return;
     setWordLoading(true);
     try {
-      const mammoth = await import('mammoth');
+      // Use mammoth's prebuilt browser bundle. The default "mammoth" entry is the
+      // Node build and calls Buffer.from(), which throws in the browser and was
+      // being swallowed into a generic "Ошибка при чтении файла" toast.
+      const mammothModule = await import('mammoth/mammoth.browser');
+      const mammoth = (mammothModule as unknown as { default?: typeof mammothModule }).default ?? mammothModule;
       const arrayBuffer = await file.arrayBuffer();
       const result = await mammoth.convertToHtml({ arrayBuffer });
       if (result.value) {
         programEditor?.commands.setContent(result.value);
         setForm((f) => ({ ...f, program_content: result.value }));
         notifications.show({ message: 'Word-файл загружен', color: 'green' });
+      } else {
+        notifications.show({ message: 'Файл пустой или не содержит текста', color: 'yellow' });
       }
-    } catch {
-      notifications.show({ message: 'Ошибка при чтении файла', color: 'red' });
+    } catch (err) {
+      console.error('Word upload failed:', err);
+      notifications.show({ message: 'Ошибка при чтении файла. Убедитесь, что это .docx файл', color: 'red' });
     } finally {
       setWordLoading(false);
       if (wordInputRef.current) wordInputRef.current.value = '';
